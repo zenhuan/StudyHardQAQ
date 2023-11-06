@@ -20,22 +20,21 @@ public class move : MonoBehaviour
 
     }
 
-    private void Update()
+    public void Update()
     {
         GetInput();
         Move();
         Jump();
         Ray();
-
     }
 
-    private void Move()
+    public void Move()
     {
         rb.velocity = new Vector2(input_x * speed , rb.velocity.y);
 
     }
 
-    private void Jump()
+    public void Jump()
     {
         if(isground && input_y)
         {
@@ -44,7 +43,7 @@ public class move : MonoBehaviour
 
     }
 
-    private void Ray()
+    public void Ray()
     {
         //取得此碰撞器底部位置的信息
         Vector3 origin = col.bounds.center + new Vector3(0, -col.bounds.extents.y);
@@ -60,7 +59,7 @@ public class move : MonoBehaviour
         }
     }
 
-    private void GetInput()
+    public void GetInput()
     {
         input_x = Input.GetAxisRaw("Horizontal");
         input_y = Input.GetKeyDown(KeyCode.Space);

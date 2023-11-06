@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+//訪問ui組件需要寫這個
+using UnityEngine.UI;
 
 public class L04_1029 : MonoBehaviour
 {
@@ -23,6 +25,7 @@ public class L04_1029 : MonoBehaviour
     //常用3- [Range(0 ,10)] 改變在引擎中顯示的方式
 
     [SerializeField]private Rigidbody2D rb;
+    [SerializeField] private Slider hpBar;
     //[SerializeField] private Sprite sp;
     public BoxCollider2D col;
     public float input_x;
@@ -33,6 +36,14 @@ public class L04_1029 : MonoBehaviour
     Animator anim;
     //聲明位子
     Vector3 oscale;
+    private string npcTag = "NPC";
+    private string traptag = "Trap";
+    private string goodtrap = "GoodTrap";
+    
+   
+
+    float maxHp = 100;
+    float currentHp = 100; 
 
     //animator中常用的api-(1)animator.SetBool(string name , bool value) 設定一個bool的變量
     //animator中常用的api-(2)animator.SetTrigger(string name , bool value) 激活一個trigger的變量
@@ -45,6 +56,11 @@ public class L04_1029 : MonoBehaviour
         //轉換於相對於父物體的比例
         oscale = transform.localScale;
 
+        float x = transform.position.x;
+        float range = Mathf.Clamp(x, 0, 10);
+
+      
+
     }
 
     private void Update()
@@ -54,6 +70,7 @@ public class L04_1029 : MonoBehaviour
         Jump();
         Ray();
         Animation();
+        //Moverange();
     }
 
     private void Animation()
@@ -62,6 +79,14 @@ public class L04_1029 : MonoBehaviour
         anim.SetBool("Moving", input_x != 0);
 
     }
+
+    private void Moverange()
+    {
+        float x = transform.position.x;
+        float range = Mathf.Clamp(x, 0, 10);
+        rb.transform.position = new Vector3(range, transform.position.y, transform.position.z);
+    }
+
 
     private void Move()
     {
@@ -79,10 +104,10 @@ public class L04_1029 : MonoBehaviour
 
     }
 
-    private void Jump()
+    public void Jump()
     {
         //玩家在地板上 並且 按壓空白鍵
-        if (isground && input_y)
+        if (isground && input_y )
         {
             //給予剛體往上增加一個力 
             rb.AddForce(Vector2.up * 200 * jumpforce);
@@ -104,13 +129,61 @@ public class L04_1029 : MonoBehaviour
        
     }
 
-    private void GetInput()
+    public void GetInput()
     {
         //GetAxisRaw為在玩家輸入左或是右的時候返回(1,0)或是(-1,0)
         input_x = Input.GetAxisRaw("Horizontal");
         input_y = Input.GetKeyDown(KeyCode.Space);
     }
 
+    public void DamageSelf()
+    {
+        currentHp -= 20;
+        hpBar.value = currentHp / maxHp;
+    }
+
+    public void HealeSelf()
+    {
+        currentHp += 20;
+        hpBar.value = currentHp / maxHp;
+    }
+
+    
+
+    public void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.CompareTag(npcTag))
+        {
+            NPC npc = collision.GetComponent<NPC>();
+            {
+                npc.textBubbleAnim.SetBool("Appear", true); 
+            }
+        }
+        if (collision.CompareTag(traptag) && maxHp > 0)
+        {
+            DamageSelf();
+
+        }
+        if (collision.CompareTag(goodtrap) && currentHp < 100)
+        {
+            HealeSelf();
+
+        }
+    }
+
+    public void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag(npcTag))
+        {
+            NPC npc = collision.GetComponent<NPC>();
+            {
+                npc.textBubbleAnim.SetBool("Appear", false);
+            }
+        }
+    }
+
+  
+    
 
 }
 
